@@ -1,0 +1,8 @@
+# Spring settings
+spring:
+  profiles:
+    active: dev
+
+# Huawei Cloud settings
+huawei:
+  obs:
