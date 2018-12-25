@@ -9,3 +9,4 @@ huawei:
     endPoint: ${HUAWEI_OBS_END_POINT}
     accessKeyId: ${HUAWEI_OBS_ACCESS_KEY_ID}
     secretAccessKey: ${HUAWEI_OBS_SECRET_ACCESS_KEY}
+    bucketName: ${HUAWEI_OBS_BUCKET_NAME}

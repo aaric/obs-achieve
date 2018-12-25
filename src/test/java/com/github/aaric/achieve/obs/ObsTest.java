@@ -35,18 +35,16 @@ public class ObsTest {
     @Value("${huawei.obs.secretAccessKey}")
     private String secretAccessKey;
 
-    /**
-     * 测试桶名称
-     */
-    private String bucketName = "obs-beta";
-
-    protected ObsClient client;
+    @Value("${huawei.obs.bucketName}")
+    private String bucketName;
 
     /**
      * 测试文件
      */
-    private String testFileDirectory = "C:\\Users\\root\\Desktop\\";
-    private String testFileName = "OpenBSD.jpg";
+    private static final String testFileDirectory = "C:\\Users\\root\\Desktop\\";
+    private static final String testFileName = "404.jpg";
+
+    protected ObsClient client;
 
     @Before
     public void begin() {
@@ -74,20 +72,28 @@ public class ObsTest {
     @Test
     @Ignore
     public void testCreateBucket() {
+        // 判断桶是否存在
+        String bucketName = "bucketname";
+        boolean exists = client.headBucket(bucketName);
+
         // 简单创建一个桶（无权限）
-        client.createBucket("bucketname_1");
+        if (exists) {
+            client.createBucket(bucketName);
+        }
 
         // 创建一个归档类型的桶（无权限）
-        ObsBucket obsBucket = new ObsBucket();
-        obsBucket.setBucketName("bucketname_2");
-        // 设置桶访问权限为公共读，默认是私有读写
-        obsBucket.setAcl(AccessControlList.REST_CANNED_PUBLIC_READ);
-        // 设置桶的存储类型为归档存储
-        obsBucket.setBucketStorageClass(StorageClassEnum.COLD);
-        // 设置桶区域位置
-        obsBucket.setLocation("bucketlocation");
-        // 创建桶
-        client.createBucket(obsBucket);
+        if (exists) {
+            ObsBucket obsBucket = new ObsBucket();
+            obsBucket.setBucketName(bucketName);
+            // 设置桶访问权限为公共读，默认是私有读写
+            obsBucket.setAcl(AccessControlList.REST_CANNED_PUBLIC_READ);
+            // 设置桶的存储类型为归档存储
+            obsBucket.setBucketStorageClass(StorageClassEnum.COLD);
+            // 设置桶区域位置
+            obsBucket.setLocation("bucketlocation");
+            // 创建桶
+            client.createBucket(obsBucket);
+        }
     }
 
     @Test
