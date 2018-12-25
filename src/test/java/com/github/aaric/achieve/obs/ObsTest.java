@@ -110,9 +110,44 @@ public class ObsTest {
 
     @Test
     @Ignore
+    public void testGetBucketLocation() {
+        String location = client.getBucketLocation(bucketName);
+        System.out.println(location);
+        Assert.assertEquals("cn-south-1", location);
+    }
+
+    @Test
+    @Ignore
+    public void testGetBucketStorageInfo() {
+        BucketStorageInfo storageInfo = client.getBucketStorageInfo(bucketName);
+        System.out.println(storageInfo.getObjectNumber());
+        System.out.println(storageInfo.getSize());
+        Assert.assertNotNull(storageInfo);
+    }
+
+    @Test
+    @Ignore
     public void testPutObject() throws IOException {
-        // 上传对象
-        PutObjectResult result = client.putObject(bucketName, testFileName, new File(testFileDirectory, testFileName));
+        // 上传字符串
+        //PutObjectResult result = client.putObject(bucketName, "uuid.txt", new ByteArrayInputStream(UUID.randomUUID().toString().getBytes()));
+
+        // 上传网络流
+        //PutObjectResult result = client.putObject(bucketName, "baidu.html", new URL("https://www.baidu.com").openStream());
+
+        // 上传文件流
+        //PutObjectResult result = client.putObject(bucketName, testFileName, new File(testFileDirectory, testFileName));
+
+        // 获取上传文件进度
+        PutObjectRequest request = new PutObjectRequest(bucketName, testFileName);
+        request.setFile(new File(testFileDirectory, testFileName));
+        request.setProgressListener((progressStatus) -> {
+            // 获得上传平均速率
+            System.out.println("AverageSpeed: " + progressStatus.getAverageSpeed());
+            // 获得上传进度百分比
+            System.out.println("TransferPercentage: " + progressStatus.getTransferPercentage());
+        });
+        request.setProgressInterval(1024 * 1024L);
+        PutObjectResult result = client.putObject(request);
         Assert.assertNotNull(result.getRequestId());
     }
 
