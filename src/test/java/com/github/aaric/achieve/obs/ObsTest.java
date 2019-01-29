@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -149,6 +146,22 @@ public class ObsTest {
         request.setProgressInterval(1024 * 1024L);
         PutObjectResult result = client.putObject(request);
         Assert.assertNotNull(result.getRequestId());
+    }
+
+    @Test
+    @Ignore
+    public void testPutObjectDirectory() {
+        // 创建文件夹
+        PutObjectResult result = client.putObject(bucketName, "new_folder/", new ByteArrayInputStream(new byte[0]));
+        Assert.assertNotNull(result.getRequestId());
+    }
+
+    @Test
+    @Ignore
+    public void testUploadFile() {
+        // 断点续传上传
+        UploadFileRequest request = new UploadFileRequest(bucketName, testFileName);
+        request.setUploadFile(testFileDirectory + testFileName);
     }
 
     @Test
