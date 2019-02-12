@@ -288,4 +288,14 @@ public class ObsTest {
         System.out.println(acl);
         Assert.assertNotNull(acl);
     }
+
+    @Test
+    @Ignore
+    public void testCopyObject() {
+        // 复制对象
+        CopyObjectRequest request = new CopyObjectRequest(bucketName, testFileName, bucketName, "copy-" + testFileName);
+        CopyObjectResult result = client.copyObject(request);
+        System.out.println(result);
+        Assert.assertNotNull(result);
+    }
 }
