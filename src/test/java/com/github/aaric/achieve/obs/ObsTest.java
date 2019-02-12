@@ -180,7 +180,8 @@ public class ObsTest {
 
     @Test
     @Ignore
-    public void testDownloadFile() throws Exception {
+    public void testDownloadFile() {
+        // 多线程下载文件
         String storageFileName = UUID.randomUUID().toString() + testFileName.substring(testFileName.lastIndexOf("."));
         DownloadFileRequest request = new DownloadFileRequest(bucketName, testFileName);
         request.setDownloadFile(testFileDirectory + storageFileName);
@@ -195,10 +196,30 @@ public class ObsTest {
     @Ignore
     public void testListObjects() {
         // 列举对象
-        ObjectListing list = client.listObjects(bucketName);
-        for (ObsObject object : list.getObjects()) {
-            System.out.println(object.getObjectKey() + ": " + object.getMetadata().getContentLength());
-        }
+        //ObjectListing list = client.listObjects(bucketName);
+        ListObjectsRequest request = new ListObjectsRequest(bucketName);
+
+        // 只列举100个对象(默认1000)
+        request.setMaxKeys(2);
+
+        // 设置文件夹对象名"new_folder/"为前缀
+        //request.setPrefix("new_folder/");
+
+        // 设置文件夹分隔符"/"
+        //request.setDelimiter("/");
+
+        // 分页列举全部对象
+        ObjectListing result;
+        do {
+            result = client.listObjects(request);
+            for (ObsObject object : result.getObjects()) {
+                System.out.println(object.getOwner().getId() + ": " + object.getObjectKey() + ": " + object.getMetadata().getContentLength());
+            }
+
+            // 指定起始位置列举
+            request.setMarker(result.getNextMarker());
+
+        } while (result.isTruncated());
     }
 
     @Test
@@ -206,5 +227,33 @@ public class ObsTest {
     public void testDeleteObject() {
         // 删除对象
         client.deleteObject(bucketName, testFileName);
+    }
+
+    @Test
+    @Ignore
+    public void testPutWithSetACL() {
+        // 上传时设置文件ACL属性
+        String objectKey = "private" + testFileName.substring(testFileName.lastIndexOf("."));
+        PutObjectRequest request = new PutObjectRequest(bucketName, objectKey);
+        request.setFile(new File(testFileDirectory, testFileName));
+        request.setAcl(AccessControlList.REST_CANNED_PRIVATE); //账号无权限，ALC设置无效
+        PutObjectResult result = client.putObject(request);
+        Assert.assertNotNull(result.getRequestId());
+    }
+
+    @Test
+    @Ignore
+    public void testSetACL() {
+        // 设置对象访问权限为私有读写
+        client.setObjectAcl(bucketName, testFileName, AccessControlList.REST_CANNED_PRIVATE); //账号无权限，ALC设置无效
+    }
+
+    @Test
+    @Ignore
+    public void testGetAccessControlList() {
+        // 获取对象访问权限
+        AccessControlList acl = client.getObjectAcl(bucketName, testFileName);
+        System.out.println(acl);
+        Assert.assertNotNull(acl);
     }
 }
