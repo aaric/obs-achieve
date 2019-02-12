@@ -160,7 +160,7 @@ public class ObsTest {
     @Test
     @Ignore
     public void testUploadFile() {
-        // 断点续传上传
+        // 断点续传上传 -- 待完善
         UploadFileRequest request = new UploadFileRequest(bucketName, testFileName);
         request.setUploadFile(testFileDirectory + testFileName);
     }
@@ -227,6 +227,38 @@ public class ObsTest {
     public void testDeleteObject() {
         // 删除对象
         client.deleteObject(bucketName, testFileName);
+    }
+
+    /**
+     * 注意：会删除全部文件!!!
+     */
+    @Test
+    @Ignore
+    public void testDeleteObjectList() {
+        // 批量删除对象
+        ListVersionsRequest request = new ListVersionsRequest(bucketName);
+
+        // 每次批量删除100个对象
+        request.setMaxKeys(100);
+
+        ListVersionsResult result;
+        do {
+            // 执行删除
+            result = client.listVersions(request);
+
+            DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest(bucketName);
+            for (VersionOrDeleteMarker v: result.getVersions()) {
+                deleteRequest.addKeyAndVersion(v.getKey(), v.getVersionId());
+            }
+
+            DeleteObjectsResult deleteResult = client.deleteObjects(deleteRequest);
+            System.out.println(deleteResult.getDeletedObjectResults());
+
+            // 获取下一批次
+            request.setKeyMarker(result.getNextKeyMarker());
+            request.setVersionIdMarker(result.getNextVersionIdMarker());
+
+        } while (result.isTruncated());
     }
 
     @Test
