@@ -2,6 +2,7 @@ package com.github.aaric.achieve.obs;
 
 import com.obs.services.ObsClient;
 import com.obs.services.model.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -38,7 +39,7 @@ public class ObsTest {
     /**
      * 测试文件
      */
-    private static final String testFileDirectory = "C:\\Users\\root\\Desktop\\";
+    private static final String testFileDirectory = FileUtils.getUserDirectoryPath() + "\\Desktop\\";
     private static final String testFileName = "404.jpg";
 
     protected ObsClient client;
@@ -175,6 +176,19 @@ public class ObsTest {
         IOUtils.copy(input, output);
         input.close();
         output.close();
+    }
+
+    @Test
+    @Ignore
+    public void testDownloadFile() throws Exception {
+        String storageFileName = UUID.randomUUID().toString() + testFileName.substring(testFileName.lastIndexOf("."));
+        DownloadFileRequest request = new DownloadFileRequest(bucketName, testFileName);
+        request.setDownloadFile(testFileDirectory + storageFileName);
+        request.setTaskNum(5); //设置分段下载时的最大并发数
+        request.setPartSize(2 * 1024); //设置分段大小为10MB：10 * 1024 * 1024
+        request.setEnableCheckpoint(true); //开启断点续传模式
+        DownloadFileResult result = client.downloadFile(request);
+        Assert.assertNotNull(result);
     }
 
     @Test
