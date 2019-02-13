@@ -247,7 +247,7 @@ public class ObsTest {
             result = client.listVersions(request);
 
             DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest(bucketName);
-            for (VersionOrDeleteMarker v: result.getVersions()) {
+            for (VersionOrDeleteMarker v : result.getVersions()) {
                 deleteRequest.addKeyAndVersion(v.getKey(), v.getVersionId());
             }
 
@@ -297,5 +297,27 @@ public class ObsTest {
         CopyObjectResult result = client.copyObject(request);
         System.out.println(result);
         Assert.assertNotNull(result);
+    }
+
+    @Test
+    @Ignore
+    public void testDomainUsage() {
+        // 网站静态文件托管
+        // Domain: obs.gmmc.incarcloud.com
+        // CNAME TO: obs-beta.obs.cn-south-1.myhwclouds.com
+
+        // 设置托管全部文件
+        WebsiteConfiguration config = new WebsiteConfiguration();
+        RedirectAllRequest request = new RedirectAllRequest();
+        request.setHostName("obs.gmmc.incarcloud.com");  //只支持HTTP
+        request.setRedirectProtocol(ProtocolEnum.HTTP);
+        config.setRedirectAllRequestsTo(request);
+        client.setBucketWebsite(bucketName, config);
+
+        // 查询托管配置
+        /*WebsiteConfiguration queryConfig = client.getBucketWebsite(bucketName);
+        for (RouteRule rule: queryConfig.getRouteRules()) {
+            System.out.println(rule);
+        }*/
     }
 }
