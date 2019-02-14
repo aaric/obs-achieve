@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -29,14 +28,14 @@ public class ObsServiceImpl implements ObsService {
     /**
      * 授权访问密钥（AK）
      */
-    @Value("${huawei.obs.accessKeyId}")
-    private String accessKeyId;
+    @Value("${huawei.obs.accessKey}")
+    private String accessKey;
 
     /**
      * 授权访问密钥（SK）
      */
-    @Value("${huawei.obs.secretAccessKey}")
-    private String secretAccessKey;
+    @Value("${huawei.obs.accessSecretKey}")
+    private String accessSecretKey;
 
     /**
      * 访问桶（Bucket ）
@@ -51,7 +50,7 @@ public class ObsServiceImpl implements ObsService {
      */
     private ObsClient getClient() {
         // 创建ObsClient实例
-        return new ObsClient(accessKeyId, secretAccessKey, endPoint);
+        return new ObsClient(accessKey, accessSecretKey, endPoint);
     }
 
     @Override
