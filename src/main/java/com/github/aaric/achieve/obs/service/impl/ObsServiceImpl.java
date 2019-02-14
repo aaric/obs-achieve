@@ -3,7 +3,7 @@ package com.github.aaric.achieve.obs.service.impl;
 import com.github.aaric.achieve.obs.service.ObsService;
 import com.obs.services.ObsClient;
 import com.obs.services.exception.ObsException;
-import com.obs.services.model.ObsObject;
+import com.obs.services.model.ObjectMetadata;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -58,8 +58,8 @@ public class ObsServiceImpl implements ObsService {
         ObsClient client = getClient();
         try {
             // 如果返回对象不为null，说明该存在该远程文件
-            ObsObject object = client.getObject(bucketName, remotePath);
-            if(null != object) {
+            ObjectMetadata metadata = client.getObjectMetadata(bucketName, remotePath);
+            if(null != metadata) {
                 return true;
             }
 
