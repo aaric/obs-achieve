@@ -39,10 +39,8 @@ public interface ObsService {
     /**
      * 下载文件到本地
      *
-     * @param remoteFilePath     远程文件存储路径，例如/upload/test/test.txt
-     * @param localFileDirectory 本地文件存储目录，例如：D:\download\file。若此值为null,则为临时文件存储目录
-     * @param localFileName      本地存储文件名称，例如test.txt。 若此值为null,则为远程文件名称
-     * @return
+     * @param remotePath 远程文件存储路径，例如/upload/test/test.txt
+     * @return 下载文件临时路径
      */
-    File downloadFile(String remoteFilePath, String localFileDirectory, String localFileName);
+    String downloadFile(String remotePath);
 }

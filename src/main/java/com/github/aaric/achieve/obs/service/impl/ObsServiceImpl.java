@@ -3,9 +3,8 @@ package com.github.aaric.achieve.obs.service.impl;
 import com.github.aaric.achieve.obs.service.ObsService;
 import com.obs.services.ObsClient;
 import com.obs.services.exception.ObsException;
-import com.obs.services.model.ObjectMetadata;
-import com.obs.services.model.PutObjectRequest;
-import com.obs.services.model.PutObjectResult;
+import com.obs.services.model.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -109,18 +111,46 @@ public class ObsServiceImpl implements ObsService {
         request.setProgressInterval(1024 * 1024L);
         PutObjectResult result = getClient().putObject(request);
         if(null != result && StringUtils.isNotBlank(result.getRequestId())) {
-            return redirectHost.join("/", remotePath);
+            return StringUtils.join(Arrays.asList(redirectHost, remotePath), "/");
         }
         return null;
     }
 
     @Override
     public Map<String, String> uploadFiles(Map<String, File> mapUploadFiles) {
+        if(null != mapUploadFiles && 0 != mapUploadFiles.size()) {
+            Map.Entry<String, File> entry;
+            Map<String, String> mapStoragePaths = new HashMap<>();
+            Iterator<Map.Entry<String, File>> it = mapUploadFiles.entrySet().iterator();
+            while (it.hasNext()) {
+                entry = it.next();
+                mapStoragePaths.put(entry.getKey(), uploadFile(entry.getKey(), entry.getValue()));
+            }
+            return mapStoragePaths;
+        }
         return null;
     }
 
     @Override
-    public File downloadFile(String remoteFilePath, String localFileDirectory, String localFileName) {
+    public String downloadFile(String remotePath) {
+        // 检查和格式化OBS指定存储目录
+        if(StringUtils.isNotBlank(remotePath) && 0 == remotePath.indexOf("/")) {
+            remotePath = remotePath.substring(1);
+        }
+
+        // 多线程下载文件
+        DownloadFileRequest request = new DownloadFileRequest(bucketName, remotePath);
+        String downloadFile = FileUtils.getTempDirectoryPath() + remotePath.substring(remotePath.lastIndexOf("/")+ 1);
+        request.setDownloadFile(downloadFile);
+        request.setTaskNum(5); //设置分段下载时的最大并发数
+        request.setPartSize(10 * 1024 * 1024); //设置分段大小为10MB
+        request.setEnableCheckpoint(true); //开启断点续传模式
+        DownloadFileResult result = getClient().downloadFile(request);
+
+        // 返回临时下载路径
+        if(null != result) {
+            return downloadFile;
+        }
         return null;
     }
 }
