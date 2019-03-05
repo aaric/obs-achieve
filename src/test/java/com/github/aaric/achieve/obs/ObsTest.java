@@ -24,15 +24,27 @@ import java.util.UUID;
 @RunWith(SpringRunner.class)
 public class ObsTest {
 
+    /**
+     * 存储区域
+     */
     @Value("${huawei.obs.endPoint}")
     private String endPoint;
 
-    @Value("${huawei.obs.accessKeyId}")
-    private String accessKeyId;
+    /**
+     * 授权访问密钥（AK）
+     */
+    @Value("${huawei.obs.accessKey}")
+    private String accessKey;
 
-    @Value("${huawei.obs.secretAccessKey}")
-    private String secretAccessKey;
+    /**
+     * 授权访问密钥（SK）
+     */
+    @Value("${huawei.obs.accessSecretKey}")
+    private String accessSecretKey;
 
+    /**
+     * 访问桶（Bucket ）
+     */
     @Value("${huawei.obs.bucketName}")
     private String bucketName;
 
@@ -40,14 +52,14 @@ public class ObsTest {
      * 测试文件
      */
     private static final String testFileDirectory = FileUtils.getUserDirectoryPath() + "\\Desktop\\";
-    private static final String testFileName = "404.jpg";
+    private static final String testFileName = "banzhuan.jpg";
 
     protected ObsClient client;
 
     @Before
     public void begin() {
         // 创建ObsClient实例
-        client = new ObsClient(accessKeyId, secretAccessKey, endPoint);
+        client = new ObsClient(accessKey, accessSecretKey, endPoint);
     }
 
     @After
@@ -60,8 +72,8 @@ public class ObsTest {
     @Ignore
     public void testConnect() {
         System.out.println(endPoint);
-        System.out.println(accessKeyId);
-        System.out.println(secretAccessKey);
+        System.out.println(accessKey);
+        System.out.println(accessSecretKey);
 
         // 使用访问OBS
         // TODO 对OBS进行业务操作
