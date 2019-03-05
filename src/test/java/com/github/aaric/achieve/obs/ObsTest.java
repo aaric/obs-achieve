@@ -52,7 +52,7 @@ public class ObsTest {
      * 测试文件
      */
     private static final String testFileDirectory = FileUtils.getUserDirectoryPath() + "\\Desktop\\";
-    private static final String testFileName = "404.jpg";
+    private static final String testFileName = "banzhuan.jpg";
 
     protected ObsClient client;
 

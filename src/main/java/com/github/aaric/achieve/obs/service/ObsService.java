@@ -24,16 +24,17 @@ public interface ObsService {
      *
      * @param remotePath 上传到FTP相对路径，例如“/uploads/test/test.txt”，其中“/uploads”必须已经存在，否则因权限问题失败
      * @param uploadFile 需要上传到FTP的本地文件
-     * @return 默认返回false，上传文件失败
+     * @return null-上传文件失败，文件完整路径
      */
-    boolean uploadFile(String remotePath, File uploadFile);
+    String uploadFile(String remotePath, File uploadFile);
 
     /**
      * 批量上传文件到FTP工作目录
      *
      * @param mapUploadFiles 需要上传到FTP的本地文件，键名为指定FTP相对路径，键值为上传文件
+     * @return Map[key: 上传到FTP相对路径；value: null-上传文件失败，文件完整路径]
      */
-    void uploadFiles(Map<String, File> mapUploadFiles);
+    Map<String, String> uploadFiles(Map<String, File> mapUploadFiles);
 
     /**
      * 下载文件到本地

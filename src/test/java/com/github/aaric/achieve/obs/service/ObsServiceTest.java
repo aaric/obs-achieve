@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.File;
+import java.util.UUID;
+
 /**
  * ObsServiceTest
  *
@@ -22,20 +25,20 @@ public class ObsServiceTest {
      * 测试文件
      */
     private static final String testFileDirectory = FileUtils.getUserDirectoryPath() + "\\Desktop\\";
-    private static final String testFileName = "404.jpg";
+    private static final String testFileName = "banzhuan.jpg";
 
     @Autowired
     protected ObsService obsService;
 
     @Test
     public void testIsHasFile() {
-        Assert.assertTrue(obsService.isHasFile("404.jpg"));
-        Assert.assertFalse(obsService.isHasFile("404x.jpg"));
+        Assert.assertTrue(obsService.isHasFile("/" + testFileName));
+        Assert.assertFalse(obsService.isHasFile("/" + "404x.jpg"));
     }
 
     @Test
     public void testUploadFile() {
-
+        System.out.println(obsService.uploadFile("/hello/" + UUID.randomUUID().toString() + "/" + testFileName, new File(testFileDirectory, testFileName)));
     }
 
     @Test

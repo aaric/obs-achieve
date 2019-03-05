@@ -10,3 +10,4 @@ huawei:
     accessKey: ${HUAWEI_OBS_ACCESS_KEY}
     accessSecretKey: ${HUAWEI_OBS_ACCESS_SECRET_KEY}
     bucketName: ${HUAWEI_OBS_BUCKET_NAME}
+    redirectHost: ${HUAWEI_OBS_REDIRECT_HOST}

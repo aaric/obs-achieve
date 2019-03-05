@@ -4,6 +4,11 @@ import com.github.aaric.achieve.obs.service.ObsService;
 import com.obs.services.ObsClient;
 import com.obs.services.exception.ObsException;
 import com.obs.services.model.ObjectMetadata;
+import com.obs.services.model.PutObjectRequest;
+import com.obs.services.model.PutObjectResult;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +23,11 @@ import java.util.Map;
  */
 @Service
 public class ObsServiceImpl implements ObsService {
+
+    /**
+     * Logger
+     */
+    private static final Logger logger = LoggerFactory.getLogger(ObsServiceImpl.class);
 
     /**
      * 存储区域
@@ -44,6 +54,12 @@ public class ObsServiceImpl implements ObsService {
     private String bucketName;
 
     /**
+     * 企业重定向域名
+     */
+    @Value("${huawei.obs.redirectHost}")
+    private String redirectHost;
+
+    /**
      * 获得OBS客户端
      *
      * @return
@@ -55,10 +71,14 @@ public class ObsServiceImpl implements ObsService {
 
     @Override
     public boolean isHasFile(String remotePath) {
-        ObsClient client = getClient();
+        // 检查和格式化OBS指定存储目录
+        if(StringUtils.isNotBlank(remotePath) && 0 == remotePath.indexOf("/")) {
+            remotePath = remotePath.substring(1);
+        }
+
         try {
             // 如果返回对象不为null，说明该存在该远程文件
-            ObjectMetadata metadata = client.getObjectMetadata(bucketName, remotePath);
+            ObjectMetadata metadata = getClient().getObjectMetadata(bucketName, remotePath);
             if(null != metadata) {
                 return true;
             }
@@ -70,13 +90,33 @@ public class ObsServiceImpl implements ObsService {
     }
 
     @Override
-    public boolean uploadFile(String remotePath, File uploadFile) {
-        return false;
+    public String uploadFile(String remotePath, File uploadFile) {
+        // 检查和格式化OBS指定存储目录
+        if(StringUtils.isNotBlank(remotePath) && 0 == remotePath.indexOf("/")) {
+            remotePath = remotePath.substring(1);
+        }
+
+        // 获取上传文件进度
+        PutObjectRequest request = new PutObjectRequest(bucketName, remotePath);
+        request.setFile(uploadFile);
+        logger.info("## uploadFile: {}", remotePath);
+        request.setProgressListener((progressStatus) -> {
+            // 获得上传平均速率
+            logger.info("AverageSpeed: {}", progressStatus.getAverageSpeed());
+            // 获得上传进度百分比
+            logger.info("TransferPercentage: ", progressStatus.getTransferPercentage());
+        });
+        request.setProgressInterval(1024 * 1024L);
+        PutObjectResult result = getClient().putObject(request);
+        if(null != result && StringUtils.isNotBlank(result.getRequestId())) {
+            return redirectHost.join("/", remotePath);
+        }
+        return null;
     }
 
     @Override
-    public void uploadFiles(Map<String, File> mapUploadFiles) {
-
+    public Map<String, String> uploadFiles(Map<String, File> mapUploadFiles) {
+        return null;
     }
 
     @Override
