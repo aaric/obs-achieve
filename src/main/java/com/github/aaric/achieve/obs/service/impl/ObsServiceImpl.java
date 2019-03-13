@@ -82,12 +82,15 @@ public class ObsServiceImpl implements ObsService {
             // 如果返回对象不为null，说明该存在该远程文件
             ObjectMetadata metadata = getClient().getObjectMetadata(bucketName, remotePath);
             if(null != metadata) {
+                logger.info("## ObsService.isHasFile: {} true!", remotePath);
                 return true;
             }
 
         } catch (ObsException e) {
             e.printStackTrace();
         }
+
+        logger.info("## ObsService.isHasFile: {} false!", remotePath);
         return false;
     }
 
@@ -101,7 +104,7 @@ public class ObsServiceImpl implements ObsService {
         // 获取上传文件进度
         PutObjectRequest request = new PutObjectRequest(bucketName, remotePath);
         request.setFile(uploadFile);
-        logger.info("## uploadFile: {}", remotePath);
+        logger.info("## ObsService.uploadFile: {}", remotePath);
         request.setProgressListener((progressStatus) -> {
             // 获得上传平均速率
             logger.info("AverageSpeed: {}", progressStatus.getAverageSpeed());
@@ -145,12 +148,16 @@ public class ObsServiceImpl implements ObsService {
         request.setTaskNum(5); //设置分段下载时的最大并发数
         request.setPartSize(10 * 1024 * 1024); //设置分段大小为10MB
         request.setEnableCheckpoint(true); //开启断点续传模式
-        DownloadFileResult result = getClient().downloadFile(request);
 
         // 返回临时下载路径
+        DownloadFileResult result = getClient().downloadFile(request);
         if(null != result) {
+            logger.info("## ObsService.downloadFile: {} success!", remotePath);
             return downloadFile;
         }
+
+        // 下载文件失败
+        logger.info("## ObsService.downloadFile: {} failure!", remotePath);
         return null;
     }
 }
